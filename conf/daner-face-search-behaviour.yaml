@@ -28,3 +28,10 @@ config:
     # Do not change this value in daner-face-search-behaviout.yaml as it acts as default for everyone!
     # Instead, override it in daner-face-search-environment.yaml (create the config file is it does not exist).
     features: 'extracted-features-*.mx'
+
+    # The Wolfram script responsible for facial detection and similarity search.
+    # This is normally on the classpath and baked into the WAR.
+    #
+    # Do not change this value in daner-face-search-behaviout.yaml as it acts as default for everyone!
+    # Instead, override it in daner-face-search-environment.yaml (create the config file is it does not exist).
+    danerScript: 'DANER.m'

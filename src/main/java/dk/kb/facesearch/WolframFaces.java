@@ -37,6 +37,7 @@ public class WolframFaces {
 
     public static final String FEATURES_KEY = "config.wolfram.features";
     public static final String KERNEL_KEY = "config.wolfram.mathKernel";
+    public static final String SCRIPT_KEY = "config.wolfram.danerScript";
 
     private static final WolframFaces instance = new WolframFaces();
     private KernelLink ml;
@@ -56,12 +57,13 @@ public class WolframFaces {
                     "Unable to initialize WolframFaces as no file matches feature glob '" + featuresStr + "'");
         }
 
+        String kernel = ServiceConfig.getConfig().getString(KERNEL_KEY);
+        String script = ServiceConfig.getConfig().getString(SCRIPT_KEY);
         Path featureFile = featureCandidates.get(featureCandidates.size()-1);
         log.debug("Resolved concrete feature file '" + featureFile + "'");
-        String kernel = ServiceConfig.getConfig().getString(KERNEL_KEY);
 
         try {
-            initEngine(kernel, featureFile);
+            initEngine(kernel, script, featureFile);
         } catch (Exception e) {
             String message = "Error: initEngine failed";
             log.error(message, e);
@@ -70,7 +72,7 @@ public class WolframFaces {
         // TODO: Init the engine, load the script, warm it with a test search
     }
 
-    private void initEngine(String kernel, Path featureFile) {
+    private void initEngine(String kernel, String script, Path featureFile) {
         String[] argv = new String[] {
                 "-linkmode",
                 "launch",
@@ -86,20 +88,28 @@ public class WolframFaces {
         }
 
         try {
+            // ********************************************************************
+            // INITIALIZE THE KERNEL
             /*
              * Get rid of the initial InputNamePacket the kernel will send
              * when it is launched.
+             * pmd: As I understand it, this forces the kernel to load before our
+             * first evaluation.
              */
             ml.discardAnswer();
 
-            // TODO: Load the script here
+            // Okay, try to load some definitions from a Wolfram Language package
+            // TODO: Feed the featureFile to the script
+            ml.evaluate("<<" + script);
+            ml.discardAnswer();
+            // TODO: Perform warm up
+            // DONE INITIALUZATION
+            // ********************************************************************
         } catch (MathLinkException e) {
             throw new IllegalStateException("Unable to initialize Wolfram Engine", e);
         } finally {
             ml.close();
         }
-
-
     }
 
     /**
@@ -112,6 +122,7 @@ public class WolframFaces {
     public static SimilarResponseDto getSimilarFaces(String imageURL, int maxMatches) {
         JSONObject json = instance.getSimilarFacesJSON(imageURL, maxMatches);
 
+        // TODO: Map the JSOn to a proper answer
         System.out.println(json);
         throw new UnsupportedOperationException("Map the JSON to SimilarResponseDto or throw a not found");
     }
@@ -129,7 +140,7 @@ public class WolframFaces {
     }
 
     String getSimilarFacesJSONString(String imageURL, int maxMatches) {
-        throw new UnsupportedOperationException("Call running Wolfram environment here and return the result");
+        return ml.evaluateToOutputForm("findSimilarFaces[\"" + imageURL + "\", " + maxMatches + "]", 0);
     }
 
 }
