@@ -1,0 +1,88 @@
+openapi: 3.0.2
+info:
+  version: "v1"
+  title: "${project.name}"
+  description: |
+    ${project.description}
+  contact:
+    email: "${user.name}@kb.dk"
+  license:
+    name: "${license.name}"
+    url: "${license.url}"
+servers:
+  #  /api must match servlet-mapping in web.xml
+  - url: "/${project.artifactId}/v1"
+    description: "Version 1"
+
+paths:
+  /ping:
+    get:
+      tags:
+        - "${project.name}"
+      summary: Ping the server to check if the server is reachable.
+      operationId: ping
+      x-useGenericResponse: false # If enabled the method will return Response
+      x-streamingOutput: false # If enabled the method will return StreamingOutput.
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+        '406':
+          description: Not Acceptable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Error
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /hello:
+    get:
+      tags:
+        - "${project.name}"
+      summary: 'Request a Hello World message, for testing purposes'
+      operationId: getGreeting
+      parameters:
+        - name: alternateHello
+          in: query
+          description: Optional alternative to using the word 'Hello' in the reply
+          required: false
+          schema:
+            type: string
+            default: World
+      responses:
+        '200':
+          description: A JSON structure containing a Hello World message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HelloReply'
+
+components:
+  schemas:
+    HelloReply:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: Greeting from the API
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string

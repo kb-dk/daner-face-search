@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Context override="true" docBase="/app/tomcat-apps/daner-face-search.war">
+
+    <Environment name="daner-face-search-logback-config"
+        value="/app/conf/logback.xml"
+        type="java.lang.String"
+        override="false"/>
+    <Environment name="application-config"
+        value="/app/conf/daner-face-search*.yaml"
+        type="java.lang.String"
+        override="false"/>
+
+</Context>
+

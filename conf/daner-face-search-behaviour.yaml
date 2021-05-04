@@ -1,0 +1,30 @@
+#
+# This config contains behaviour data: Thread allocation, allowed fields for lookup, limits for arguments etc.
+#
+# The behaviour config is normally controlled by developers and is part of the code repository.
+# Sensitive information such as machine names and user/passwords should not be part of this config.
+#
+# It will be automatically merged with the environment config when accessed through the
+# application config system.
+#
+#
+config:
+  limits:
+    min: 10
+    max: 100
+  mylist:
+    - Hello
+    - World
+    - from
+    - java-template
+
+# The entries below are just place holders.
+#  
+# There should be a corresponding `-environment.yaml`-file with the structure below, but with real values.
+# The entries in the environment-YAML will override the ones in the behaviour-YAML. The sole purpose of having the
+# structure in the behaviour-YAML is to document what needs to be defined in the environment.
+  backend:
+   db: 'http://placeholdermachine:8090/foobar/'
+   user: 'placeholder_dbuser'
+   password: 'placeholder_dbpassword'
+                                                                                                                                                                                           
