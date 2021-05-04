@@ -8,7 +8,17 @@ Developed and maintained by the Royal Danish Library.
 
 * Maven 3                                  
 * Java 11
-* The free (registration required) Wolfram Engine, which can be obtained from [Free Wolfram Engine for Developers](https://www.wolfram.com/engine/)
+* Wolfram Engine
+
+## Wolfram Engine  
+
+The free (registration required) Wolfram Engine which can be obtained from [Free Wolfram Engine for Developers](https://www.wolfram.com/engine/).
+
+After registration, download and installation, remember to run
+```
+wolframscript
+```
+to activate the product.
 
 ## Build & run
 

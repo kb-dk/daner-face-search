@@ -9,22 +9,22 @@
 #
 #
 config:
-  limits:
-    min: 10
-    max: 100
-  mylist:
-    - Hello
-    - World
-    - from
-    - java-template
+  wolfram:
+    # The install folder for the Wolfram engine.
+    #
+    # Do not change this value in daner-face-search-behaviout.yaml as it acts as default for everyone!
+    # Instead, override it in daner-face-search-environment.yaml (create the config file is it does not exist).
+    folder: '/usr/local/Wolfram/WolframEngine/12.2'
 
-# The entries below are just place holders.
-#  
-# There should be a corresponding `-environment.yaml`-file with the structure below, but with real values.
-# The entries in the environment-YAML will override the ones in the behaviour-YAML. The sole purpose of having the
-# structure in the behaviour-YAML is to document what needs to be defined in the environment.
-  backend:
-   db: 'http://placeholdermachine:8090/foobar/'
-   user: 'placeholder_dbuser'
-   password: 'placeholder_dbpassword'
-                                                                                                                                                                                           
+    # The folder for the kernel.
+    #
+    # Do not change this value in daner-face-search-behaviout.yaml as it acts as default for everyone!
+    # Instead, override it in daner-face-search-environment.yaml (create the config file is it does not exist).
+    mathKernel: '/usr/local/Wolfram/WolframEngine/12.2/Executables/MathKernel'
+
+    # The extracted facial features from the DANER project.
+    # This supports globbing: If multiple files matches, the last one (alphanumerically) wins.
+    #
+    # Do not change this value in daner-face-search-behaviout.yaml as it acts as default for everyone!
+    # Instead, override it in daner-face-search-environment.yaml (create the config file is it does not exist).
+    features: 'extracted-features-*.mx'

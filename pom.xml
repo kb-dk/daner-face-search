@@ -68,6 +68,14 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.wolfram</groupId>
+            <artifactId>feature</artifactId>
+            <version>1.0.0</version>
+            <scope>system</scope>
+            <!-- TODO: How do we make this position configurable? -->
+            <systemPath>/usr/local/Wolfram/WolframEngine/12.2/SystemFiles/Links/JLink/JLink.jar</systemPath>
+        </dependency>
 
         <!-- Apache CXF and servlet stuff -->
         <dependency>

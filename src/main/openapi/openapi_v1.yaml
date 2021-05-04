@@ -3,7 +3,7 @@ info:
   version: "v1"
   title: "${project.name}"
   description: |
-    ${project.description}
+    Wolfram backed visual similiarity based face search. Implemented specifically for the DANER project.
   contact:
     email: "${user.name}@kb.dk"
   license:
@@ -43,38 +43,118 @@ paths:
               schema:
                 type: string
 
-  /hello:
+  # https://swagger.io/docs/specification/describing-request-body/file-upload/
+  /similarFaces:
     get:
       tags:
         - "${project.name}"
-      summary: 'Request a Hello World message, for testing purposes'
-      operationId: getGreeting
+      summary: 'Request images similar to the uploaded image'
+      operationId: findSimilarFaces
       parameters:
-        - name: alternateHello
-          in: query
-          description: Optional alternative to using the word 'Hello' in the reply
-          required: false
+        - name: imageURL
+          in: path
+          description: 'URl to the image to use as source for the similarity search'
+          required: true
           schema:
             type: string
-            default: World
+            example: 'http://example.com/like-a-liik/api/resource/ephemeral/b1690f11-7646-43b2-9911-611c2b427f0e.jpg'
+        - name: maxMatches
+          in: path
+          description: 'The maximum number of similar images to return'
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 10
+            example: 10
+
       responses:
         '200':
-          description: A JSON structure containing a Hello World message
+          description: 'An array of arrays of image IDs and distances'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HelloReply'
+                $ref: '#/components/schemas/SimilarResponse'
+
 
 components:
   schemas:
-    HelloReply:
+
+    SimilarResponse:
       type: object
       required:
-        - message
+        - imageURL
+        - faces
       properties:
-        message:
+        imageURL:
           type: string
-          description: Greeting from the API
+          description: 'The URL for the source image'
+          example: 'http://example.com/like-a-liik/api/resource/ephemeral/b1690f11-7646-43b2-9911-611c2b427f0e.jpg'
+        faces:
+          type: array
+          description: 'The detected faces from the source image'
+          items:
+            $ref: '#/components/schemas/Face'
+        technote:
+          type: string
+          description: 'Free form technical notes, such as which underlying implementation was used for the match'
+
+    Face:
+      type: object
+      required:
+        - index
+        - similars
+      properties:
+        index:
+          type: integer
+          format: int32
+          description: 'The detected element index, starting from 0'
+        boundingBox:
+          $ref: '#/components/schemas/BoundingBox'
+        similars:
+          type: array
+          description: 'The images similar to the detected area of the source image'
+          items:
+            $ref: '#/components/schemas/Similar'
+
+    Similar:
+      type: object
+      required:
+        - distance
+        - id
+      properties:
+        distance:
+          type: number
+          format: double
+          description: 'The similarity distance to the sourceURL, lower values means more similar, 0 is identical'
+          example: 0.345
+        id:
+          type: string
+          description: 'The internal ID for the image'
+          example: '0473151'
+
+    BoundingBox:
+      type: object
+      required:
+        - x
+        - y
+        - width
+        - height
+      properties:
+        x:
+          type: integer
+          description: 'The x coordinate for the bounding box'
+        y:
+          type: integer
+          description: 'The y coordinate for the boundng box. The top of the image is 0'
+        width:
+          type: integer
+          description: 'The width of the bounding box'
+        height:
+          type: integer
+          description: 'The height of the bounding box'
+
+
     Error:
       type: object
       required:
