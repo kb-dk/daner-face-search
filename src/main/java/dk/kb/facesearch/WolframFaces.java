@@ -124,8 +124,8 @@ public class WolframFaces {
             // ********************************************************************
         } catch (MathLinkException e) {
             throw new IllegalStateException("Unable to initialize Wolfram Engine", e);
-        } finally {
-            ml.close();
+        //} finally {
+//            ml.close();
         }
         log.info("Successfully initalized the Wolfram engine with DANER script '{}' and features '{}'",
                  script, featureFile);
