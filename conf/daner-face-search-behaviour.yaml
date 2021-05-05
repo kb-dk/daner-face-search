@@ -16,7 +16,7 @@ config:
     # Instead, override it in daner-face-search-environment.yaml (create the config file is it does not exist).
     folder: '/usr/local/Wolfram/WolframEngine/12.2'
 
-    # The folder for the kernel.
+    # The path to the kernel.
     #
     # Do not change this value in daner-face-search-behaviout.yaml as it acts as default for everyone!
     # Instead, override it in daner-face-search-environment.yaml (create the config file is it does not exist).
