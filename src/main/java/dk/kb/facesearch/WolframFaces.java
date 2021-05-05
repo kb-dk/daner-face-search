@@ -148,6 +148,9 @@ public class WolframFaces {
 
     JSONObject getSimilarFacesJSON(String imageURL, int maxMatches) {
         String jsonStr = getSimilarFacesJSONString(imageURL, maxMatches);
+        if (jsonStr == null) {
+            throw new NullPointerException("Got null from findSimilarFaces[\"" + imageURL + "\", " + maxMatches + "]");
+        }
         try {
             return new JSONObject(jsonStr);
         } catch (JSONException e) {
