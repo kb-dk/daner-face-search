@@ -57,7 +57,7 @@ paths:
           required: true
           schema:
             type: string
-            example: 'http://localhost:8080/daner-face-search/thispersondoesnotexist.com.jpg'
+            example: 'http://localhost:8234/daner-face-search/thispersondoesnotexist.com.jpg'
         - name: maxMatches
           in: query
           description: 'The maximum number of similar images to return'

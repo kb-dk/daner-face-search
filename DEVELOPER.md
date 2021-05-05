@@ -21,11 +21,11 @@ Start a Jetty web server with the application:
 mvn jetty:run
 ```
 
-The default port is 8080 and the default Hello World service can be accessed at
-<http://localhost:8080/daner-face-search/v1/hello>
+The default port is 8234 and the default Hello World service can be accessed at
+<http://localhost:8234/daner-face-search/v1/hello>
 where "daner-face-search" is your artifactID from above.
 
-The Swagger UI is available at <http://localhost:8080/daner-face-search/api/>, providing access to both the `v1` and the 
+The Swagger UI is available at <http://localhost:8234/daner-face-search/api/>, providing access to both the `v1` and the 
 `devel` versions of the GUI. 
 
 ## java webapp template structure
@@ -49,7 +49,7 @@ repositories. To guard against this, `conf/daner-face-search-environment.yaml` i
 
 Jetty is a servlet container (like Tomcat) that is often used for testing during development.
 
-This project can be started with `mvn jetty:run`, which will expose a webserver with the implemented service at port 8080.
+This project can be started with `mvn jetty:run`, which will expose a webserver with the implemented service at port 8234.
 If it is started in debug mode from an IDE (normally IntelliJ IDEA), breakpoints and all the usual debug functionality
 will be available.
 
@@ -76,7 +76,7 @@ similar to the procedure for test- and developer-machines.
 
 For smaller projects or standalone web applications, it can be useful to bundle the user interface with the API 
 implementation: Files and folders added to the `src/main/webapp/` folder are served under 
-[http://localhost:8080/<application-ID>/](http://localhost:8080/<application-ID>/).
+[http://localhost:8234/<application-ID>/](http://localhost:8234/<application-ID>/).
 
 While it is possible to use [JSP](https://en.wikipedia.org/wiki/Jakarta_Server_Pages), as the sample 
 [index.jsp](./src/main/webapp/index.jsp) shows, this is considered legacy technology.
@@ -132,7 +132,7 @@ Normally you do not need to touch the Mustache-files.
 
 The project comes with two versions pre-defined: `v1` and `devel`. `devel` is intended partly for experiments
 and partly to demonstrate having multiple concurrent versions of the externally facing API. `devel` is available
-at <http://localhost:8080/daner-face-search/devel/api-docs?url=openapi_develjson>.
+at <http://localhost:8234/daner-face-search/devel/api-docs?url=openapi_develjson>.
 
 When a project hase been deployed in production and new functionality requires breaking the API contract, developers
 should
@@ -146,7 +146,7 @@ should
     `*ServiceImpl` import)
     * Add a new `servlet` and a new `servlet-mapping` for the new `Application` in `src/main/webapp/WEB-INF/web.xml`  
   * Add the path to the new OpenAPI YAML to `urls` in `webapp/api/index.html`. The first entry in the array is the
-    default when visiting the main API-page at <http://localhost:8080/daner-face-search/api/>  
+    default when visiting the main API-page at <http://localhost:8234/daner-face-search/api/>  
 
 After a `mvn package`, a skeleton implementation for the new version of the API class will be created in the source
 tree. The standard action is to copy the implementation for the previous version to the new one and adjust from there.  
