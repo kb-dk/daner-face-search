@@ -52,14 +52,14 @@ paths:
       operationId: findSimilarFaces
       parameters:
         - name: imageURL
-          in: path
+          in: query
           description: 'URl to the image to use as source for the similarity search'
           required: true
           schema:
             type: string
-            example: 'http://example.com/like-a-liik/api/resource/ephemeral/b1690f11-7646-43b2-9911-611c2b427f0e.jpg'
+            example: 'http://localhost:8234/daner-face-search/thispersondoesnotexist.com.jpg'
         - name: maxMatches
-          in: path
+          in: query
           description: 'The maximum number of similar images to return'
           required: false
           schema:
@@ -67,6 +67,8 @@ paths:
             format: int32
             default: 10
             example: 10
+            minimum: 1
+            maximum: 100
 
       responses:
         '200':
