@@ -37,6 +37,7 @@ class WolframFacesTest {
 
     @Test
     void basicTest()  {
-        System.out.println(WolframFaces.getSimilarFaces("https://thispersondoesnotexist.com/image", "JPG", 2));
+//        System.out.println(WolframFaces.getSimilarFaces("https://thispersondoesnotexist.com/image", "JPG", 2));
+        System.out.println(WolframFaces.getSimilarFaces("http://17053.dk/pmd.png", "PNG", 2));
     }
 }

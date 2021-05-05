@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Connects to the Wolfram engine to perform similarity search for faces.
@@ -140,17 +141,13 @@ public class WolframFaces {
     public static SimilarResponseDto getSimilarFaces(String imageURL, String imageType, int maxMatches) {
         JSONObject json = getInstance().getSimilarFacesJSON(imageURL, imageType, maxMatches);
 
-        // TODO: Map the JSOn to a proper answer
+        // TODO: Map the JSON to a proper answer
         System.out.println(json);
         throw new UnsupportedOperationException("Map the JSON to SimilarResponseDto or throw a not found");
     }
 
     JSONObject getSimilarFacesJSON(String imageURL, String imageType, int maxMatches) {
         String jsonStr = getSimilarFacesJSONString(imageURL, imageType, maxMatches);
-        System.err.println("JSON string: " + jsonStr);
-        if (jsonStr == null) {
-            throw new NullPointerException("Got null from findSimilarFaces[\"" + imageURL + "\", " + maxMatches + "]");
-        }
         try {
             return new JSONObject(jsonStr);
         } catch (JSONException e) {
@@ -162,8 +159,22 @@ public class WolframFaces {
     }
 
     String getSimilarFacesJSONString(String imageURL, String imageType, int maxMatches) {
-        log.debug("Invoking findSimilarFaces script with imageURL='{}', maxMatches='{}'", imageURL, maxMatches);
-        return ml.evaluateToOutputForm("findSimilarFaces[\"" + imageURL + "\", \"" + imageType + "\", " + maxMatches + "]", 0);
+        String wCall = String.format(
+                Locale.ROOT, "findSimilarFaces[\"%s\", \"%s\", %d]", imageURL, imageType, maxMatches);
+        log.debug("Invoking findSimilarFaces script with {}", wCall);
+        String jsonStr = ml.evaluateToOutputForm(wCall, 0);
+
+        // TODO: Remove this debug line
+        System.err.println("JSON string from " + wCall +": " + jsonStr);
+
+        if ("Null".equals(jsonStr)) {
+            throw new NullPointerException("Got String 'Null' from " + wCall);
+        }
+        if (jsonStr == null) {
+            throw new NullPointerException("Got Java null from " + wCall);
+        }
+
+        return jsonStr;
     }
 
 }

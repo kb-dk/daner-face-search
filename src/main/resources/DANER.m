@@ -81,6 +81,8 @@ findSimilarFaces[testImagePath_String, imageType_String, n_Integer] := Module[
     log["## Unable to process image"];
     ExportString[<|"error"->"Unable to import PNG file."|>,"JSON"],
 
+
+    log["## ImageDimensions: "<>ToString@ImageDimensions[image]];
     log["## Look for faces"];
     faces = FaceAlign[image, Automatic, {224,224}];
     log["## Found "<>ToString@Length@faces<>" faces in image"];
