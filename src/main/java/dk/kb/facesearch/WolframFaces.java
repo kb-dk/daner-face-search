@@ -159,6 +159,7 @@ public class WolframFaces {
     }
 
     String getSimilarFacesJSONString(String imageURL, int maxMatches) {
+        log.debug("Invoking findSimilarFaces script with imageURL='{}', maxMatches='{}'", imageURL, maxMatches);
         return ml.evaluateToOutputForm("findSimilarFaces[\"" + imageURL + "\", " + maxMatches + "]", 0);
     }
 
