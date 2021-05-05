@@ -26,7 +26,10 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileNotFoundException;
+import java.net.MalformedURLException;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -39,7 +42,7 @@ public class WolframFaces {
     public static final String KERNEL_KEY = "config.wolfram.mathKernel";
     public static final String SCRIPT_KEY = "config.wolfram.danerScript";
 
-    private static final WolframFaces instance = new WolframFaces();
+    private static WolframFaces instance;
     private KernelLink ml;
 
     /**
@@ -58,7 +61,14 @@ public class WolframFaces {
         }
 
         String kernel = ServiceConfig.getConfig().getString(KERNEL_KEY);
-        String script = ServiceConfig.getConfig().getString(SCRIPT_KEY);
+        String script;
+        try {
+            script = Resolver.resolveURL(ServiceConfig.getConfig().getString(SCRIPT_KEY)).getFile();
+        } catch (Exception e) {
+            String message = "Error: unable to resolve DANER script";
+            log.error(message, e);
+            throw new IllegalStateException(message, e);
+        }
         Path featureFile = featureCandidates.get(featureCandidates.size()-1);
         log.debug("Resolved concrete feature file '" + featureFile + "'");
 
@@ -70,6 +80,13 @@ public class WolframFaces {
             throw new IllegalStateException(message, e);
         }
         // TODO: Init the engine, load the script, warm it with a test search
+    }
+
+    public static WolframFaces getInstance() {
+        if (instance == null) {
+            instance = new WolframFaces();
+        }
+        return instance;
     }
 
     private void initEngine(String kernel, String script, Path featureFile) {
@@ -84,7 +101,7 @@ public class WolframFaces {
         try {
             ml = MathLinkFactory.createKernelLink(argv);
         } catch (MathLinkException e) {
-            throw new RuntimeException("Fatal error opening kernel link", e);
+            throw new RuntimeException("Fatal error opening kernel link with " + Arrays.toString(argv), e);
         }
 
         try {
@@ -99,7 +116,7 @@ public class WolframFaces {
             ml.discardAnswer();
 
             // Okay, try to load some definitions from a Wolfram Language package
-            // TODO: Feed the featureFile to the script
+            ml.evaluate("featuresFile = \"" + featureFile + "\";");
             ml.evaluate("<<" + script);
             ml.discardAnswer();
             // TODO: Perform warm up
@@ -110,6 +127,8 @@ public class WolframFaces {
         } finally {
             ml.close();
         }
+        log.info("Successfully initalized the Wolfram engine with DANER script '{}' and features '{}'",
+                 script, featureFile);
     }
 
     /**
@@ -120,7 +139,7 @@ public class WolframFaces {
      * @return a strincture with similarity matches, ready for delivery to the caller.
      */
     public static SimilarResponseDto getSimilarFaces(String imageURL, int maxMatches) {
-        JSONObject json = instance.getSimilarFacesJSON(imageURL, maxMatches);
+        JSONObject json = getInstance().getSimilarFacesJSON(imageURL, maxMatches);
 
         // TODO: Map the JSOn to a proper answer
         System.out.println(json);

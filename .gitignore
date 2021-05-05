@@ -16,3 +16,6 @@ setup_project.sh
 # We use FaceSearchImpl as the bridge and only use DanerFaceSearchApiServiceImpl to copy-paste from
 src/main/java/dk/kb/facesearch/api/v1/impl/DanerFaceSearchApiServiceImpl.java
 src/main/java/dk/kb/facesearch/api/devel/impl/DanerFaceSearchApiServiceImpl.java
+
+# Too large for git comfort
+extracted-features-*.mx

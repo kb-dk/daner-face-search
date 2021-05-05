@@ -9,6 +9,7 @@ Developed and maintained by the Royal Danish Library.
 * Maven 3                                  
 * Java 11
 * Wolfram Engine
+* Trained features from the DANER project (kb.dk-internal for now, sorry)
 
 ## Wolfram Engine  
 

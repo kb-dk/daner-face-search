@@ -7,6 +7,7 @@ import dk.kb.facesearch.model.v1.FaceDto;
 import dk.kb.facesearch.model.v1.SimilarDto;
 import dk.kb.facesearch.model.v1.SimilarResponseDto;
 import dk.kb.facesearch.webservice.exception.InternalServiceException;
+import dk.kb.facesearch.webservice.exception.InvalidArgumentServiceException;
 import dk.kb.facesearch.webservice.exception.ServiceException;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
@@ -90,10 +91,17 @@ public class FaceSearchImpl implements DanerFaceSearchApi {
      */
     @Override
     public SimilarResponseDto findSimilarFaces(String imageURL, Integer maxMatches) throws ServiceException {
+        int realMaxMatches = maxMatches == null || maxMatches < 1 || maxMatches > 100 ? 10 : maxMatches;
+        if (imageURL == null) {
+            throw new InvalidArgumentServiceException("No ImageURL provided");
+        }
         // TODO: Implement getSimilarFaces and use that instead of the mock
-//        return WolframFaces.getSimilarFaces(imageURL, maxMatches);
+        return WolframFaces.getSimilarFaces(imageURL, realMaxMatches);
 
+        //return getSimilarResponseDtoMock();
+    }
 
+    private SimilarResponseDto getSimilarResponseDtoMock() {
         try{
             SimilarResponseDto response = new SimilarResponseDto();
         response.setImageURL("B6XAP");
@@ -119,7 +127,6 @@ public class FaceSearchImpl implements DanerFaceSearchApi {
         } catch (Exception e){
             throw handleException(e);
         }
-    
     }
 
     /**

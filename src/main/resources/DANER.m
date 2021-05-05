@@ -30,7 +30,8 @@ logString[s_String] := Module[
 log[s_String] := Write["stderr", DateString["ISODateTime"]<>" - "<>s];
 
 (* CONFIGURATION *)
-featuresFile = "src/main/resources/extracted-features-2021-03-22T13.59.09.mx";
+(* featuresFile must be set before calling this script *)
+(* featuresFile = "src/main/resources/extracted-features-2021-03-22T13.59.09.mx"; *)
 (* END OF CONFIGURATION *)
 
 Write["stderr", StringRepeat["#",74]]
