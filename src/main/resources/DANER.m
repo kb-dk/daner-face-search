@@ -67,13 +67,13 @@ findNearestPhoto = FeatureNearest[features -> {"Index", "Distance"}];
 Write["stderr", "## Created a findNearest function giving index and distance"]
 Write["stderr", "## All data loaded and initialized"];
 
-findSimilarFaces[testImagePath_String, n_Integer] := Module[
+findSimilarFaces[testImagePath_String, imageType_String, n_Integer] := Module[
   {image, faces, transformedFace, nearestFaces},
 
   byteArray = ReadByteArray[testImagePath];
   log["## loaded "<>ToString@Length@byteArray<>" bytes from "<>testImagePath];
 
-  Catch[image = ImportByteArray[byteArray, "PNG"]];
+  Catch[image = ImportByteArray[byteArray, imageType]];
   log["## Convert bytes to image: "<>ToString@Head@image];
 
   If[Not[Head@image === Image],

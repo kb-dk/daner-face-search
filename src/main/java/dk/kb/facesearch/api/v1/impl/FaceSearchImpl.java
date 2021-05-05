@@ -10,7 +10,6 @@ import dk.kb.facesearch.webservice.exception.InternalServiceException;
 import dk.kb.facesearch.webservice.exception.InvalidArgumentServiceException;
 import dk.kb.facesearch.webservice.exception.ServiceException;
 import org.apache.cxf.jaxrs.ext.MessageContext;
-import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,7 +95,7 @@ public class FaceSearchImpl implements DanerFaceSearchApi {
             throw new InvalidArgumentServiceException("No ImageURL provided");
         }
         // TODO: Implement getSimilarFaces and use that instead of the mock
-        return WolframFaces.getSimilarFaces(imageURL, realMaxMatches);
+        return WolframFaces.getSimilarFaces(imageURL, "JPG", realMaxMatches);
 
         //return getSimilarResponseDtoMock();
     }

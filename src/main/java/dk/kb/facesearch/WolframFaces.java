@@ -26,8 +26,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileNotFoundException;
-import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
@@ -135,19 +133,21 @@ public class WolframFaces {
      * Request a list of detected faces from imageURL, each containing a list of IDs for similar faces from
      * the DANER collection.
      * @param imageURL   the URL to an image to use as basis for faciag detection and similarity search.
+     * @param imageType
      * @param maxMatches the maximum number of similar face IDs to return for each detected face.
      * @return a strincture with similarity matches, ready for delivery to the caller.
      */
-    public static SimilarResponseDto getSimilarFaces(String imageURL, int maxMatches) {
-        JSONObject json = getInstance().getSimilarFacesJSON(imageURL, maxMatches);
+    public static SimilarResponseDto getSimilarFaces(String imageURL, String imageType, int maxMatches) {
+        JSONObject json = getInstance().getSimilarFacesJSON(imageURL, imageType, maxMatches);
 
         // TODO: Map the JSOn to a proper answer
         System.out.println(json);
         throw new UnsupportedOperationException("Map the JSON to SimilarResponseDto or throw a not found");
     }
 
-    JSONObject getSimilarFacesJSON(String imageURL, int maxMatches) {
-        String jsonStr = getSimilarFacesJSONString(imageURL, maxMatches);
+    JSONObject getSimilarFacesJSON(String imageURL, String imageType, int maxMatches) {
+        String jsonStr = getSimilarFacesJSONString(imageURL, imageType, maxMatches);
+        System.err.println("JSON string: " + jsonStr);
         if (jsonStr == null) {
             throw new NullPointerException("Got null from findSimilarFaces[\"" + imageURL + "\", " + maxMatches + "]");
         }
@@ -161,9 +161,9 @@ public class WolframFaces {
         }
     }
 
-    String getSimilarFacesJSONString(String imageURL, int maxMatches) {
+    String getSimilarFacesJSONString(String imageURL, String imageType, int maxMatches) {
         log.debug("Invoking findSimilarFaces script with imageURL='{}', maxMatches='{}'", imageURL, maxMatches);
-        return ml.evaluateToOutputForm("findSimilarFaces[\"" + imageURL + "\", " + maxMatches + "]", 0);
+        return ml.evaluateToOutputForm("findSimilarFaces[\"" + imageURL + "\", \"" + imageType + "\", " + maxMatches + "]", 0);
     }
 
 }
