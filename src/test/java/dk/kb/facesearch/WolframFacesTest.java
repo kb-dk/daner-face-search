@@ -6,7 +6,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -36,8 +38,13 @@ class WolframFacesTest {
     }
 
     @Test
-    void basicTest()  {
-//        System.out.println(WolframFaces.getSimilarFaces("https://thispersondoesnotexist.com/image", "JPG", 2));
-        System.out.println(WolframFaces.getSimilarFaces("http://17053.dk/pmd.png", "PNG", 2));
+    void basicTest() throws MalformedURLException, FileNotFoundException {
+        // Fails with cannot open PNG!?
+        //String image = Resolver.resolveURL("thispersondoesnotexist.com.jpg").toString();
+        //assertNotNull(WolframFaces.getSimilarFaces(image, image.endsWith("jpg") ? "JPEG" : "PNG", 2));
+
+        // Two calls to test if the state is restored after a call
+        assertNotNull(WolframFaces.getSimilarFaces("http://17053.dk/pmd.png", "PNG", 2));
+        assertNotNull(WolframFaces.getSimilarFaces("http://17053.dk/pmd.png", "PNG", 2));
     }
 }

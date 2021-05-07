@@ -18,9 +18,12 @@ import com.wolfram.jlink.KernelLink;
 import com.wolfram.jlink.MathLinkException;
 import com.wolfram.jlink.MathLinkFactory;
 import dk.kb.facesearch.config.ServiceConfig;
+import dk.kb.facesearch.model.v1.FaceDto;
+import dk.kb.facesearch.model.v1.SimilarDto;
 import dk.kb.facesearch.model.v1.SimilarResponseDto;
 import dk.kb.facesearch.webservice.exception.InternalServiceException;
 import dk.kb.util.Resolver;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -28,8 +31,13 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Connects to the Wolfram engine to perform similarity search for faces.
@@ -115,9 +123,13 @@ public class WolframFaces {
             ml.discardAnswer();
 
             // Okay, try to load some definitions from a Wolfram Language package
-            ml.evaluate("featuresFile = \"" + featureFile + "\";");
+            ml.evaluate("featuresFile = \"" + featureFile + "\"");
+            ml.discardAnswer();
             ml.evaluate("<<" + script);
             ml.discardAnswer();
+            //System.out.println("Now for the real test - takes less that a second:");
+            //System.out.println(ml.evaluateToOutputForm("findSimilarFaces[\"http://17053.dk/pmd.png\",2]", 0));
+            //System.out.println("******");
             // TODO: Perform warm up
             // DONE INITIALUZATION
             // ********************************************************************
@@ -139,17 +151,35 @@ public class WolframFaces {
      * @return a strincture with similarity matches, ready for delivery to the caller.
      */
     public static SimilarResponseDto getSimilarFaces(String imageURL, String imageType, int maxMatches) {
-        JSONObject json = getInstance().getSimilarFacesJSON(imageURL, imageType, maxMatches);
+        JSONArray json = getInstance().getSimilarFacesJSON(imageURL, imageType, maxMatches);
+        AtomicInteger faceIndex = new AtomicInteger(0);
 
-        // TODO: Map the JSON to a proper answer
-        System.out.println(json);
-        throw new UnsupportedOperationException("Map the JSON to SimilarResponseDto or throw a not found");
+        return new SimilarResponseDto()
+                .imageURL(imageURL)
+                .technote("Wolfram script through Java")
+                .faces(StreamSupport.stream(json.spliterator(), false)
+                               .map(o -> jsonToFaces((JSONArray)o, faceIndex.getAndIncrement()))
+                               .collect(Collectors.toList()));
     }
 
-    JSONObject getSimilarFacesJSON(String imageURL, String imageType, int maxMatches) {
+    private static FaceDto jsonToFaces(JSONArray jsonFaces, int index) {
+        return new FaceDto()
+                .index(index)
+                .similars(StreamSupport.stream(jsonFaces.spliterator(), false)
+                                  .map(o -> jsonToSimilarity((JSONObject)o))
+                                  .collect(Collectors.toList()));
+    }
+
+    private static SimilarDto jsonToSimilarity(JSONObject jsonSimilarity) {
+        return new SimilarDto()
+                .id(jsonSimilarity.getString("id"))
+                .distance(jsonSimilarity.getDouble("distance"));
+    }
+
+    JSONArray getSimilarFacesJSON(String imageURL, String imageType, int maxMatches) {
         String jsonStr = getSimilarFacesJSONString(imageURL, imageType, maxMatches);
         try {
-            return new JSONObject(jsonStr);
+            return new JSONArray(jsonStr);
         } catch (JSONException e) {
             String message = "Expected JSON from DANER script " +
             (jsonStr.length() > 400 ? jsonStr.substring(0, 397) + "..." : jsonStr);
