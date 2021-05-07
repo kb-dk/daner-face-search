@@ -26,6 +26,7 @@ import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Providers;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * daner-face-search
@@ -79,8 +80,10 @@ public class FaceSearchImpl implements DanerFaceSearchApi {
      * 
      * @param imageURL: URl to the image to use as source for the similarity search
      * 
+     * @param imageType: The type of the image. If not specified it will be guessed from imageURL extension with PNG as default
+     *
      * @param maxMatches: The maximum number of similar images to return
-     * 
+     *
      * @return <ul>
       *   <li>code = 200, message = "An array of arrays of image IDs and distances", response = SimilarResponseDto.class</li>
       *   </ul>
@@ -89,13 +92,36 @@ public class FaceSearchImpl implements DanerFaceSearchApi {
       * @implNote return will always produce a HTTP 200 code. Throw ServiceException if you need to return other codes
      */
     @Override
-    public SimilarResponseDto findSimilarFaces(String imageURL, Integer maxMatches) throws ServiceException {
+    public SimilarResponseDto findSimilarFaces(String imageURL, String imageType, Integer maxMatches) throws ServiceException {
+        log.info("findSimilarFaces(imageURL='{}', imageType='{}', maxMatches='{}') called",
+                 imageURL, imageType, maxMatches);
         int realMaxMatches = maxMatches == null || maxMatches < 1 || maxMatches > 100 ? 10 : maxMatches;
         if (imageURL == null) {
             throw new InvalidArgumentServiceException("No ImageURL provided");
         }
-        // TODO: Implement getSimilarFaces and use that instead of the mock
-        return WolframFaces.getSimilarFaces(imageURL, "JPG", realMaxMatches);
+        if (imageType == null) {
+            imageType = "auto";
+        }
+
+        String realImageType;
+        switch (imageType.toUpperCase(Locale.ROOT)) {
+            case "PNG":
+            case "JPEG":
+                realImageType = imageType.toUpperCase(Locale.ROOT);
+                break;
+            case "AUTO": {
+                if (imageURL.toLowerCase(Locale.ROOT).endsWith("jpg") || imageURL.toLowerCase().endsWith("jpeg")) {
+                    realImageType = "JPEG";
+                } else {
+                    realImageType = "PNG";
+                }
+                log.debug("Auto-assigning imageType=" + realImageType + " to image '" + imageURL + "'");
+                break;
+            }
+            default: throw new InvalidArgumentServiceException(
+                    "The imageType '" + imageType + "' is not supported. Valid values are 'JPEG', 'PNG' and 'auto'");
+        }
+        return WolframFaces.getSimilarFaces(imageURL, realImageType, realMaxMatches);
 
         //return getSimilarResponseDtoMock();
     }

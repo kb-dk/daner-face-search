@@ -58,6 +58,15 @@ paths:
           schema:
             type: string
             example: 'http://localhost:8234/daner-face-search/thispersondoesnotexist.com.jpg'
+        - name: imageType
+          in: query
+          description: 'The type of the image. If not specified it will be guessed from imageURL extension with PNG as default'
+          required: false
+          schema:
+            type: string
+            enum:  ['JPEG', 'PNG', 'auto']
+            default: 'auto'
+            example: 'PNG'
         - name: maxMatches
           in: query
           description: 'The maximum number of similar images to return'

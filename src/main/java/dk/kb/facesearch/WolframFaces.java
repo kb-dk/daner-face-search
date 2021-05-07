@@ -130,10 +130,13 @@ public class WolframFaces {
             //System.out.println("Now for the real test - takes less that a second:");
             //System.out.println(ml.evaluateToOutputForm("findSimilarFaces[\"http://17053.dk/pmd.png\",2]", 0));
             //System.out.println("******");
-            // TODO: Perform warm up
             // DONE INITIALUZATION
             // ********************************************************************
-        } catch (MathLinkException e) {
+
+            // Warmup and test
+            // TODO: Why does this fail!?
+//            getSimilarFaces("http://localhost:8234/daner-face-search/thispersondoesnotexist.com.jpg", "auto", 1);
+        } catch (Exception e) {
             throw new IllegalStateException("Unable to initialize Wolfram Engine", e);
         //} finally {
 //            ml.close();
