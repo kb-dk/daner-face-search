@@ -23,7 +23,7 @@
  1: info
  2: verbose
 *)
-logLevel = 1;
+logLevel = 2;
 
 log[level_Integer, s_String] := If[level<=logLevel,
   Write["stderr", DateString["ISODateTime"]<>" - "<>s]
@@ -64,26 +64,24 @@ findSimilarFaces[testImagePath_String, imageType_String, n_Integer] := Module[
   {image, faces, transformedFace, nearestFaces},
 
   byteArray = ReadByteArray[testImagePath];
-  log[2, "## loaded "<>ToString@Length@byteArray<>" bytes from "<>testImagePath];
+  log[1, "## loaded "<>ToString@Length@byteArray<>" bytes from "<>testImagePath];
 
-  Catch[image = ImportByteArray[byteArray, imageType]];
-  log[2, "## Converted bytes to image and got an "<>ToString@Head@image];
-  log[2, "## Convert image to B/W"];
-  image = ColorConvert[image, "Grayscale"];
+  Catch[image = ImportByteArray[byteArray]];
+  log[1, "## Converted bytes to image and got an "<>ToString@Head@image];
 
   If[Not[Head@image === Image],
     log[0, "## ERROR: Unable to process image"];
     ExportString[<|"error"->"Unable to import PNG file."|>,"JSON"],
 
-    log[2, "## ImageDimensions: "<>ToString@ImageDimensions[image]];
-    log[2, "## Look for faces"];
+    log[1, "## ImageDimensions: "<>ToString@ImageDimensions[image]];
+    log[1, "## Look for faces"];
     faces = FaceAlign[image, Automatic, {224,224}];
     log[1, "## Found "<>ToString@Length@faces<>" faces in image"];
     If[Length @ faces == 0,
       ExportString[<| "error" -> "Found no face" |>, "JSON"],
 
       log[2, "## Extract features from the B/W version of all the found faces, and find the nearest "<>ToString@n<>" faces of those."];
-      nearestFaces = findNearestPhoto[featureExtractor@#, n]&/@faces;
+      nearestFaces = findNearestPhoto[featureExtractor@ColorConvert[#, "Grayscale"], n]&/@faces;
 
       log[1, "## image processed"];
       ExportString[
@@ -99,6 +97,45 @@ findSimilarFaces[testImagePath_String, imageType_String, n_Integer] := Module[
     ]
   ]
 ]
+
+findSimilarFaces[testImagePath_String, n_Integer] := Module[
+  {image, faces, transformedFace, nearestFaces},
+
+  byteArray = ReadByteArray[testImagePath];
+  log[1, "## loaded "<>ToString@Length@byteArray<>" bytes from "<>testImagePath];
+
+  Catch[image = ImportByteArray[byteArray]];
+  log[1, "## Converted bytes to image and got an "<>ToString@Head@image];
+
+  If[Not[Head@image === Image],
+    log[0, "## ERROR: Unable to process image"];
+    ExportString[<|"error"->"Unable to import PNG file."|>,"JSON"],
+
+    log[1, "## ImageDimensions: "<>ToString@ImageDimensions[image]];
+    log[1, "## Look for faces"];
+    faces = FaceAlign[image, Automatic, {224,224}];
+    log[1, "## Found "<>ToString@Length@faces<>" faces in image"];
+    If[Length @ faces == 0,
+      ExportString[<| "error" -> "Found no face" |>, "JSON"],
+
+      log[2, "## Extract features from the B/W version of all the found faces, and find the nearest "<>ToString@n<>" faces of those."];
+      nearestFaces = findNearestPhoto[featureExtractor@ColorConvert[#, "Grayscale"], n]&/@faces;
+
+      log[1, "## image processed"];
+      ExportString[
+        Map[
+          <|
+            "id" -> FileBaseName@FileNameTake@imagePaths[[#[[1]]]],
+            "distance" -> #[[2]]
+          |> &,
+          #
+        ] & /@ nearestFaces,
+        "JSON"
+      ]
+    ]
+  ]
+]
+
 
 log[1, "## DANER loaded and ready for requests."]
 (* result = resultJSON[imageUrl,3];*)
