@@ -54,7 +54,8 @@ class WolframFacesTest {
 
     @Test
     void jpegTest() throws MalformedURLException, FileNotFoundException {
-        String image = Resolver.resolveURL("thispersondoesnotexist.com.jpg").toString();
+        String image = "https://thispersondoesnotexist.com/image";
+        //String image = Resolver.resolveURL("thispersondoesnotexist.com.jpg").toString();
         assertNotNull(WolframFaces.getSimilarFaces(image, "auto", 2));
     }
 
