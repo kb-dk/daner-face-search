@@ -110,7 +110,7 @@ public class FaceSearchImpl implements DanerFaceSearchApi {
                 realImageType = imageType.toUpperCase(Locale.ROOT);
                 break;
             case "AUTO": {
-                if (imageURL.toLowerCase(Locale.ROOT).endsWith("jpg") || imageURL.toLowerCase().endsWith("jpeg")) {
+                if (imageURL.toLowerCase(Locale.ROOT).endsWith("jpg") || imageURL.toLowerCase(Locale.ROOT).endsWith("jpeg")) {
                     realImageType = "JPEG";
                 } else {
                     realImageType = "PNG";
