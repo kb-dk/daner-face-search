@@ -32,7 +32,7 @@ Hopefully the features file will be uploaded  somewhere public at some point.
 
 Fetch the ML models needed by the application by running
 ```
-wolframscript -file init_daner_script.w
+wolframscript -file init_daner_script.wls
 ```
 this only needs to be done once as the models are cached indefinitely.
 
