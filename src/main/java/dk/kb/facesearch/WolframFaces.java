@@ -105,9 +105,10 @@ public class WolframFaces {
                 //"/Applications/Mathematica.app/Contents/MacOS/MathKernel -mathlink"
         };
 
+        log.info("Creating MathLink Kernel link with " + Arrays.asList(argv));
         try {
             ml = MathLinkFactory.createKernelLink(argv);
-        } catch (MathLinkException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Fatal error opening kernel link with " + Arrays.toString(argv), e);
         }
 
@@ -134,8 +135,13 @@ public class WolframFaces {
             // ********************************************************************
 
             // Warmup and test
-            // TODO: Why does this fail!?
-//            getSimilarFaces("http://localhost:8234/daner-face-search/thispersondoesnotexist.com.jpg", "auto", 1);
+            log.debug("Wolfram script loaded. Performing warmup");
+            String testImage = "https://upload.wikimedia.org/wikipedia/commons/6/6f/Christopher_Meloni_croped_face.png";
+            try {
+                getSimilarFacesJSONString(testImage, "auto", 1);
+            } catch (Exception e) {
+                log.warn("Unable to perform warmup of DANER script. Maybe the test PNG is not available? " + testImage);
+            }
         } catch (Exception e) {
             throw new IllegalStateException("Unable to initialize Wolfram Engine", e);
         //} finally {

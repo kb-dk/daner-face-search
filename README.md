@@ -26,7 +26,7 @@ to activate the product.
 Get the file `extracted-features-2021-03-22T13.59.09.mx` or later (ask Per or Toke) and put it in the daner-face-search
 root folder.
 
-Hopefully the features file will be uploaded  somewhere public at some point.
+Hopefully the features file will be uploaded somewhere public at some point.
 
 ## Build & run
 
@@ -34,7 +34,7 @@ Fetch the ML models needed by the application by running
 ```
 wolframscript -file init_daner_script.wls
 ```
-this only needs to be done once as the models are cached indefinitely.
+This only needs to be done once as the models are cached indefinitely.
 
 
 
