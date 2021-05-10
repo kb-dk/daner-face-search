@@ -106,6 +106,8 @@ public class WolframFaces {
     }
 
     private void initEngine(String kernel, String script, Path featureFile) {
+        log.info("initEngive(kernel='{}', script='{}', featureFile='{}') called", kernel, script, featureFile);
+
         String[] argv = new String[] {
                 "-linkmode",
                 "launch",
