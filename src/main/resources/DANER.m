@@ -18,82 +18,74 @@
 (* :Author: pmd *)
 (* :Date: 2021-05-03 *)
 
-logString[s_String] := Module[
-  {len = StringLength@s},
-  "##"
-      <> StringRepeat[" ", 35 - Floor[len/2]]
-      <> s
-      <> StringRepeat[" ", 35 - Ceiling[len/2]]
-      <> "##"
-];
+(*
+ 0: ERROR
+ 1: info
+ 2: verbose
+*)
+logLevel = 1;
 
-log[s_String] := Write["stderr", DateString["ISODateTime"]<>" - "<>s];
+log[level_Integer, s_String] := If[level<=logLevel,
+  Write["stderr", DateString["ISODateTime"]<>" - "<>s]
+];
 
 (* CONFIGURATION *)
 (* featuresFile must be set before calling this script *)
 (* featuresFile = "src/main/resources/extracted-features-2021-03-22T13.59.09.mx"; *)
 (* END OF CONFIGURATION *)
 
-Write["stderr", StringRepeat["#",74]]
-Write["stderr", logString@""]
-Write["stderr", logString@"** BEGIN PROGRAM: FACE SEARCH WEB SERVER **"]
-Write["stderr", logString[DateString[]]]
-Write["stderr", logString@""]
-Write["stderr", logString@"CONFIGURATION"]
-Write["stderr", logString@""]
-Write["stderr", "## Load features from "<>featuresFile<>"."]
-
-Write["stderr",logString@""]
-Write["stderr", StringRepeat["#",74]]
-
 (* BEGIN PROGRAM *)
+log[2,"## Load and initialize ANN data"];
+log[2,"## CWD: "<>Directory[]];
+log[1,"## Load precalculated features from "<>featuresFile];
+log[1,"## Does the file exist: "<>ToString@FileExistsQ@featuresFile];
+If[Not@FileExistsQ@featuresFile,
+  log[0, "features file not found"];
+  Abort[];
+];
 
-Write["stderr", "## Load and initialize ANN data"];
-Write["stderr", "## CWD: "<>Directory[]];
-Write["stderr", "## Load precalculated features from "<>featuresFile];
-Write["stderr", "## Does the file exist: "<>ToString@FileExistsQ@featuresFile];
-Write["stderr", "## File size: "<>ToString@FileSize@featuresFile];
-
+log[2, "## File size: "<>ToString@FileSize@featuresFile];
 Get@featuresFile;
-Write["stderr", "Symbols: "<>ToString@Names["Global`*"]];
-Write["stderr", "## Dimensions of loaded data: "<>ToString@Dimensions@faceFeatures];
+
+log[2, "## Dimensions of loaded data: "<>ToString@Dimensions@faceFeatures];
 
 features = faceFeatures[[All,2]];
 imagePaths = faceFeatures[[All,1]];
-Write["stderr", "## Loaded 2048 dimensional features from "<>ToString@Length@features<>" images."];
+log[1, "## Loaded 2048 dimensional features from "<>ToString@Length@features<>" images."];
 
+log[1, "## Load ResNet-101 Trained on Augmented CASIA-WebFace Data"];
 featureExtractor = NetModel["ResNet-101 Trained on Augmented CASIA-WebFace Data"];
+log[2, "## Create a findNearest function returning index and distance"]
 findNearestPhoto = FeatureNearest[features -> {"Index", "Distance"}];
-Write["stderr", "## Created a findNearest function giving index and distance"]
-Write["stderr", "## All data loaded and initialized"];
+
+log[1, "## All data loaded and initialized"];
 
 findSimilarFaces[testImagePath_String, imageType_String, n_Integer] := Module[
   {image, faces, transformedFace, nearestFaces},
 
   byteArray = ReadByteArray[testImagePath];
-  log["## loaded "<>ToString@Length@byteArray<>" bytes from "<>testImagePath];
+  log[2, "## loaded "<>ToString@Length@byteArray<>" bytes from "<>testImagePath];
 
   Catch[image = ImportByteArray[byteArray, imageType]];
-  log["## Convert bytes to image: "<>ToString@Head@image];
+  log[2, "## Converted bytes to image and got an "<>ToString@Head@image];
+  log[2, "## Convert image to B/W"];
+  image = ColorConvert[image, "Grayscale"];
 
   If[Not[Head@image === Image],
-    log[logString@"!! ERROR !!"];
-    log["## Unable to process image"];
+    log[0, "## ERROR: Unable to process image"];
     ExportString[<|"error"->"Unable to import PNG file."|>,"JSON"],
 
-
-    log["## ImageDimensions: "<>ToString@ImageDimensions[image]];
-    log["## Look for faces"];
+    log[2, "## ImageDimensions: "<>ToString@ImageDimensions[image]];
+    log[2, "## Look for faces"];
     faces = FaceAlign[image, Automatic, {224,224}];
-    log["## Found "<>ToString@Length@faces<>" faces in image"];
+    log[1, "## Found "<>ToString@Length@faces<>" faces in image"];
     If[Length @ faces == 0,
       ExportString[<| "error" -> "Found no face" |>, "JSON"],
 
-      log["## Extract features from the B/W version of all the found faces, and find the nearest "<>ToString@n<>" faces of those."];
+      log[2, "## Extract features from the B/W version of all the found faces, and find the nearest "<>ToString@n<>" faces of those."];
+      nearestFaces = findNearestPhoto[featureExtractor@#, n]&/@faces;
 
-      nearestFaces = findNearestPhoto[featureExtractor@ColorConvert[#, "Grayscale"], n]&/@faces;
-
-      log["## Return a JSON representation"];
+      log[1, "## image processed"];
       ExportString[
         Map[
           <|
@@ -108,7 +100,7 @@ findSimilarFaces[testImagePath_String, imageType_String, n_Integer] := Module[
   ]
 ]
 
-Write["stderr", "## DANER loaded and ready for requests."]
+log[1, "## DANER loaded and ready for requests."]
 (* result = resultJSON[imageUrl,3];*)
 
 
