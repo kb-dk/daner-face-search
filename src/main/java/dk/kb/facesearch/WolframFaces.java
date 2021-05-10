@@ -139,12 +139,16 @@ public class WolframFaces {
             ml.evaluate("featuresFile = \"" + featureFile + "\"");
             ml.waitForAnswer();
             result = ml.getString();
-            log.info("Result from setting featureFile: " + result);
+            log.info("Result from setting featureFile '{}': '{}'", featureFile, result);
 
             log.info("Loading the " + script + " file.");
             ml.evaluate("Get[\"" + script + "\"]");
             ml.waitForAnswer();
             result = ml.getString();
+            log.info("Result from loading script '{}': '{}'", script, result);
+            if (result.equals("$Failed")) {
+                throw new IllegalStateException("Couldn't load '" + script + "'");
+            }
             log.info("Result from setting featureFile: " + result);
 
             // setting the log level:
