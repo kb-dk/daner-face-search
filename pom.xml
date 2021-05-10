@@ -400,6 +400,16 @@
                     <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
                     <webResources>
                         <resource>
+                            <!-- Consider installing the JAR locally  https://stackoverflow.com/questions/19065666/how-to-include-system-dependencies-in-war-built-using-maven -->
+                            <!-- If this location is changed, one also need to change it higher in this pom.xml
+                                 in order to be able to build a war -->
+                            <directory>/usr/local/Wolfram/WolframEngine/12.2/SystemFiles/Links/JLink/</directory>
+                            <targetPath>WEB-INF/lib</targetPath>
+                            <includes>
+                                <include>JLink.jar</include>
+                            </includes>
+                         </resource>
+                        <resource>
                             <!--Include the openapi spec files so we can serve them-->
                             <directory>${project.build.outputDirectory}</directory>
                             <targetPath>.</targetPath>
