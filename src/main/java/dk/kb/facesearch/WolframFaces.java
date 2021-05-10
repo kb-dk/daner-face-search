@@ -29,6 +29,8 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
@@ -68,11 +70,17 @@ public class WolframFaces {
         }
 
         String kernel = ServiceConfig.getConfig().getString(KERNEL_KEY);
+        if (!Path.of(kernel).toFile().canRead()) {
+            String message = "No kernel at the stated path '" + kernel + "'";
+            log.error(message);
+            throw new IllegalStateException(new FileNotFoundException(message));
+        }
         String script;
+        String scriptResource = ServiceConfig.getConfig().getString(SCRIPT_KEY);
         try {
-            script = Resolver.resolveURL(ServiceConfig.getConfig().getString(SCRIPT_KEY)).getFile();
+            script = Resolver.resolveURL(scriptResource).getFile();
         } catch (Exception e) {
-            String message = "Error: unable to resolve DANER script";
+            String message = "Unable to resolve DANER script from '" + scriptResource + "'";
             log.error(message, e);
             throw new IllegalStateException(message, e);
         }
