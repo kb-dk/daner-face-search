@@ -1,6 +1,7 @@
 package dk.kb.facesearch;
 
 import dk.kb.facesearch.config.ServiceConfig;
+import dk.kb.facesearch.model.v1.SimilarResponseDto;
 import dk.kb.util.Resolver;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -45,6 +46,9 @@ class WolframFacesTest {
 
         // Two calls to test if the state is restored after a call
         assertNotNull(WolframFaces.getSimilarFaces("http://17053.dk/pmd.png", "PNG", 2));
-        assertNotNull(WolframFaces.getSimilarFaces("http://17053.dk/pmd.png", "PNG", 2));
+        SimilarResponseDto response = WolframFaces.getSimilarFaces("http://17053.dk/pmd.png", "PNG", 2);
+        assertNotNull(response, "Second call should yield a response too");
+        assertEquals(2, response.getFaces().get(0).getSimilars().size(),
+                     "The number of returnes similars shold be as expected");
     }
 }
