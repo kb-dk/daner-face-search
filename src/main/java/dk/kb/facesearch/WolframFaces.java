@@ -22,6 +22,7 @@ import dk.kb.facesearch.model.v1.FaceDto;
 import dk.kb.facesearch.model.v1.SimilarDto;
 import dk.kb.facesearch.model.v1.SimilarResponseDto;
 import dk.kb.facesearch.webservice.exception.InternalServiceException;
+import dk.kb.facesearch.webservice.exception.InvalidArgumentServiceException;
 import dk.kb.util.Resolver;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,6 +30,8 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
@@ -68,11 +71,17 @@ public class WolframFaces {
         }
 
         String kernel = ServiceConfig.getConfig().getString(KERNEL_KEY);
+        if (!Path.of(kernel).toFile().canRead()) {
+            String message = "No kernel at the stated path '" + kernel + "'";
+            log.error(message);
+            throw new IllegalStateException(new FileNotFoundException(message));
+        }
         String script;
+        String scriptResource = ServiceConfig.getConfig().getString(SCRIPT_KEY);
         try {
-            script = Resolver.resolveURL(ServiceConfig.getConfig().getString(SCRIPT_KEY)).getFile();
+            script = Resolver.resolveURL(scriptResource).getFile();
         } catch (Exception e) {
-            String message = "Error: unable to resolve DANER script";
+            String message = "Unable to resolve DANER script from '" + scriptResource + "'";
             log.error(message, e);
             throw new IllegalStateException(message, e);
         }
@@ -97,6 +106,8 @@ public class WolframFaces {
     }
 
     private void initEngine(String kernel, String script, Path featureFile) {
+        log.info("initEngine(kernel='{}', script='{}', featureFile='{}') called", kernel, script, featureFile);
+
         String[] argv = new String[] {
                 "-linkmode",
                 "launch",
@@ -208,6 +219,7 @@ public class WolframFaces {
     }
 
     String getSimilarFacesJSONString(String imageURL, String imageType, int maxMatches) {
+        imageType = guessImageType(imageURL, imageType);
         String wCall = String.format(
                 Locale.ROOT, "findSimilarFaces[\"%s\", \"%s\", %d]", imageURL, imageType, maxMatches);
         log.debug("Invoking findSimilarFaces script with {}", wCall);
@@ -224,6 +236,31 @@ public class WolframFaces {
         }
 
         return jsonStr;
+    }
+
+    String guessImageType(String imageURL, String suggestedImageType) {
+        if (suggestedImageType == null) {
+            suggestedImageType = "auto";
+        }
+        String imageType;
+        switch (suggestedImageType.toUpperCase(Locale.ROOT)) {
+            case "PNG":
+            case "JPEG":
+                imageType = suggestedImageType.toUpperCase(Locale.ROOT);
+                break;
+            case "AUTO": {
+                if (imageURL.toLowerCase(Locale.ROOT).endsWith("jpg") || imageURL.toLowerCase(Locale.ROOT).endsWith("jpeg")) {
+                    imageType = "JPEG";
+                } else {
+                    imageType = "PNG";
+                }
+                log.debug("Auto-assigning imageType=" + imageType + " to image '" + imageURL + "'");
+                break;
+            }
+            default: throw new InvalidArgumentServiceException(
+                    "The imageType '" + suggestedImageType + "' is not supported. Valid values are 'JPEG', 'PNG' and 'auto'");
+        }
+        return imageType;
     }
 
 }
