@@ -103,25 +103,7 @@ public class FaceSearchImpl implements DanerFaceSearchApi {
             imageType = "auto";
         }
 
-        String realImageType;
-        switch (imageType.toUpperCase(Locale.ROOT)) {
-            case "PNG":
-            case "JPEG":
-                realImageType = imageType.toUpperCase(Locale.ROOT);
-                break;
-            case "AUTO": {
-                if (imageURL.toLowerCase(Locale.ROOT).endsWith("jpg") || imageURL.toLowerCase(Locale.ROOT).endsWith("jpeg")) {
-                    realImageType = "JPEG";
-                } else {
-                    realImageType = "PNG";
-                }
-                log.debug("Auto-assigning imageType=" + realImageType + " to image '" + imageURL + "'");
-                break;
-            }
-            default: throw new InvalidArgumentServiceException(
-                    "The imageType '" + imageType + "' is not supported. Valid values are 'JPEG', 'PNG' and 'auto'");
-        }
-        return WolframFaces.getSimilarFaces(imageURL, realImageType, realMaxMatches);
+        return WolframFaces.getSimilarFaces(imageURL, imageType, realMaxMatches);
 
         //return getSimilarResponseDtoMock();
     }

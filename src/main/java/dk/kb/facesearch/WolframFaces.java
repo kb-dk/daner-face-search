@@ -22,6 +22,7 @@ import dk.kb.facesearch.model.v1.FaceDto;
 import dk.kb.facesearch.model.v1.SimilarDto;
 import dk.kb.facesearch.model.v1.SimilarResponseDto;
 import dk.kb.facesearch.webservice.exception.InternalServiceException;
+import dk.kb.facesearch.webservice.exception.InvalidArgumentServiceException;
 import dk.kb.util.Resolver;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -206,6 +207,7 @@ public class WolframFaces {
     }
 
     String getSimilarFacesJSONString(String imageURL, String imageType, int maxMatches) {
+        imageType = guessImageType(imageURL, imageType);
         String wCall = String.format(
                 Locale.ROOT, "findSimilarFaces[\"%s\", \"%s\", %d]", imageURL, imageType, maxMatches);
         log.debug("Invoking findSimilarFaces script with {}", wCall);
@@ -222,6 +224,31 @@ public class WolframFaces {
         }
 
         return jsonStr;
+    }
+
+    String guessImageType(String imageURL, String suggestedImageType) {
+        if (suggestedImageType == null) {
+            suggestedImageType = "auto";
+        }
+        String imageType;
+        switch (suggestedImageType.toUpperCase(Locale.ROOT)) {
+            case "PNG":
+            case "JPEG":
+                imageType = suggestedImageType.toUpperCase(Locale.ROOT);
+                break;
+            case "AUTO": {
+                if (imageURL.toLowerCase(Locale.ROOT).endsWith("jpg") || imageURL.toLowerCase(Locale.ROOT).endsWith("jpeg")) {
+                    imageType = "JPEG";
+                } else {
+                    imageType = "PNG";
+                }
+                log.debug("Auto-assigning imageType=" + imageType + " to image '" + imageURL + "'");
+                break;
+            }
+            default: throw new InvalidArgumentServiceException(
+                    "The imageType '" + suggestedImageType + "' is not supported. Valid values are 'JPEG', 'PNG' and 'auto'");
+        }
+        return imageType;
     }
 
 }
