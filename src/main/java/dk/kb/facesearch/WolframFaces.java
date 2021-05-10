@@ -146,16 +146,13 @@ public class WolframFaces {
             ml.waitForAnswer();
             result = ml.getString();
             log.info("Result from loading script '{}': '{}'", script, result);
-            if (result.equals("$Failed")) {
-                throw new IllegalStateException("Couldn't load '" + script + "'");
+            if (result.equals("$Failed") || result.equals("$Aborted")) {
+                throw new IllegalStateException("Couldn't load '" + script + "': " + result);
             }
-            log.info("Result from setting featureFile: " + result);
 
             // setting the log level:
             ml.evaluate("logLevel=1"); // 1: default
             ml.discardAnswer();
-
-            if (result.equals("$Failed") || result.equals("$Aborted")) throw new Exception("Couldn't load " + script + ": " + result);
 
             //System.out.println("Now for the real test - takes less that a second:");
             //System.out.println(ml.evaluateToOutputForm("findSimilarFaces[\"http://17053.dk/pmd.png\",2]", 0));
