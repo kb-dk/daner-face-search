@@ -113,6 +113,7 @@ public class WolframFaces {
         }
 
         try {
+            String result;
             // ********************************************************************
             // INITIALIZE THE KERNEL
             /*
@@ -125,9 +126,18 @@ public class WolframFaces {
 
             // Okay, try to load some definitions from a Wolfram Language package
             ml.evaluate("featuresFile = \"" + featureFile + "\"");
-            ml.discardAnswer();
-            ml.evaluate("<<" + script);
-            ml.discardAnswer();
+            ml.waitForAnswer();
+            result = ml.getString();
+            log.info("Result from setting featureFile: " + result);
+
+            System.out.println("Loading the " + script + " file.");
+            ml.evaluate("Get[\"" + script + "\"]");
+            ml.waitForAnswer();
+            result = ml.getString();
+            log.info("Result from setting featureFile: " + result);
+
+            if (result.equals("$Failed")) throw new Exception("Couldn't load " + script);
+
             //System.out.println("Now for the real test - takes less that a second:");
             //System.out.println(ml.evaluateToOutputForm("findSimilarFaces[\"http://17053.dk/pmd.png\",2]", 0));
             //System.out.println("******");
@@ -138,7 +148,7 @@ public class WolframFaces {
             log.debug("Wolfram script loaded. Performing warmup");
             String testImage = "https://upload.wikimedia.org/wikipedia/commons/6/6f/Christopher_Meloni_croped_face.png";
             try {
-                getSimilarFacesJSONString(testImage, "auto", 1);
+                getSimilarFacesJSONString(testImage, "PNG", 1);
             } catch (Exception e) {
                 log.warn("Unable to perform warmup of DANER script. Maybe the test PNG is not available? " + testImage);
             }

@@ -94,7 +94,6 @@ findSimilarFaces[testImagePath_String, imageType_String, n_Integer] := Module[
       nearestFaces = findNearestPhoto[featureExtractor@ColorConvert[#, "Grayscale"], n]&/@faces;
 
       log["## Return a JSON representation"];
-      return "foo";
       ExportString[
         Map[
           <|
