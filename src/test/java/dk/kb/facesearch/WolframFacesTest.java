@@ -51,4 +51,16 @@ class WolframFacesTest {
         assertEquals(2, response.getFaces().get(0).getSimilars().size(),
                      "The number of returnes similars shold be as expected");
     }
+
+    @Test
+    void jpegTest() throws MalformedURLException, FileNotFoundException {
+        String image = Resolver.resolveURL("thispersondoesnotexist.com.jpg").toString();
+        assertNotNull(WolframFaces.getSimilarFaces(image, "auto", 2));
+    }
+
+    @Test
+    void pngTest() throws MalformedURLException, FileNotFoundException {
+        String image = "http://17053.dk/pmd.png";
+        assertNotNull(WolframFaces.getSimilarFaces(image, "auto", 2));
+    }
 }
