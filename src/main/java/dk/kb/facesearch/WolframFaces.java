@@ -226,7 +226,8 @@ public class WolframFaces {
     String getSimilarFacesJSONString(String imageURL, String imageType, int maxMatches) {
         imageType = guessImageType(imageURL, imageType);
         String wCall = String.format(
-                Locale.ROOT, "findSimilarFaces[\"%s\", \"%s\", %d]", imageURL, imageType, maxMatches);
+                Locale.ROOT, "findSimilarFaces[\"%s\", %d]", imageURL, maxMatches);
+//                Locale.ROOT, "findSimilarFaces[\"%s\", \"%s\", %d]", imageURL, imageType, maxMatches);
         log.debug("Invoking findSimilarFaces script with {}", wCall);
         String jsonStr = ml.evaluateToOutputForm(wCall, 0);
 
