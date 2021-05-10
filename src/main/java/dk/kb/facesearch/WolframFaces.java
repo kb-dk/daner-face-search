@@ -190,8 +190,8 @@ public class WolframFaces {
         try {
             return new JSONArray(jsonStr);
         } catch (JSONException e) {
-            String message = "Expected JSON from DANER script " +
-            (jsonStr.length() > 400 ? jsonStr.substring(0, 397) + "..." : jsonStr);
+            String message = "Expected JSON from DANER script but got '" +
+            (jsonStr.length() > 400 ? jsonStr.substring(0, 397) + "..." : jsonStr) + "'";
             log.warn(message, e);
             throw new InternalServiceException(message);
         }
