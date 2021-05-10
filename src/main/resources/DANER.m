@@ -71,7 +71,7 @@ findSimilarFaces[testImagePath_String, imageType_String, n_Integer] := Module[
 
   If[Not[Head@image === Image],
     log[0, "## ERROR: Unable to process image"];
-    ExportString[<|"error"->"Unable to import PNG file."|>,"JSON"],
+    ExportString[<|"error"->"Unable to import image file."|>,"JSON"],
 
     log[1, "## ImageDimensions: "<>ToString@ImageDimensions[image]];
     log[1, "## Look for faces"];
@@ -109,7 +109,7 @@ findSimilarFaces[testImagePath_String, n_Integer] := Module[
 
   If[Not[Head@image === Image],
     log[0, "## ERROR: Unable to process image"];
-    ExportString[<|"error"->"Unable to import PNG file."|>,"JSON"],
+    ExportString[<|"error"->"Unable to import image file."|>,"JSON"],
 
     log[1, "## ImageDimensions: "<>ToString@ImageDimensions[image]];
     log[1, "## Look for faces"];
