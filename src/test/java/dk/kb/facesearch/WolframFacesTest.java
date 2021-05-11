@@ -9,9 +9,11 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,6 +35,9 @@ class WolframFacesTest {
     // Use the same config for unit testing as when running as a webservice
     @BeforeAll
     static void init() throws IOException {
+//        System.out.println("--------- " + System.getProperty(("com.wolfram.jlink.libdir")));
+//        System.setProperty("com.wolfram.jlink.libdir", "/usr/local/Wolfram/WolframEngine/12.2/SystemFiles/Links/JLink/");
+//        System.out.println("--------- " + System.getProperty(("com.wolfram.jlink.libdir")));
         Path knownFile = Path.of(Resolver.resolveURL("logback-test.xml").getPath());
         String projectRoot = knownFile.getParent().getParent().getParent().toString();
         ServiceConfig.initialize(projectRoot + File.separator + "conf" + File.separator + "daner-face-search*.yaml");

@@ -37,6 +37,13 @@ wolframscript -file init_daner_script.wls
 This only needs to be done once as the models are cached indefinitely.
 
 
+Install `JLINK` from Wolfram in the local Maven cache:
+```
+mvn install:install-file -Dfile=/usr/local/Wolfram/WolframEngine/12.2/SystemFiles/Links/JLink/JLink.jar -DgroupId=com.wolfram -DartifactId=feature -Dversion=1.0.0 -Dpackaging=jar
+```
+The path might differ from the snippet above.
+
+
 
 Build the Java service with
 ``` 

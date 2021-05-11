@@ -12,15 +12,23 @@ config:
   wolfram:
     # The install folder for the Wolfram engine.
     #
-    # Do not change this value in daner-face-search-behaviout.yaml as it acts as default for everyone!
+    # Do not change this value in daner-face-search-behaviour.yaml as it acts as default for everyone!
     # Instead, override it in daner-face-search-environment.yaml (create the config file is it does not exist).
     folder: '/usr/local/Wolfram/WolframEngine/12.2'
 
     # The path to the kernel.
     #
-    # Do not change this value in daner-face-search-behaviout.yaml as it acts as default for everyone!
+    # Do not change this value in daner-face-search-behaviour.yaml as it acts as default for everyone!
     # Instead, override it in daner-face-search-environment.yaml (create the config file is it does not exist).
     mathKernel: '/usr/local/Wolfram/WolframEngine/12.2/Executables/MathKernel'
+
+    # The JLink folder containing the native libraries for JLink.
+    # If this is not defined, $folder/SystemFiles/Links/JLink/ will be used (this is the default).
+    # If the property "com.wolfram.jlink.libdir" is specified, it will take precedence.
+    #
+    # Do not change this value in daner-face-search-behaviour.yaml as it acts as default for everyone!
+    # Instead, override it in daner-face-search-environment.yaml (create the config file is it does not exist).
+    #jlinkLibDir: '/usr/local/Wolfram/WolframEngine/12.2/SystemFiles/Links/JLink/'
 
     # The extracted facial features from the DANER project.
     # This supports globbing: If multiple files matches, the last one (alphanumerically) wins.
