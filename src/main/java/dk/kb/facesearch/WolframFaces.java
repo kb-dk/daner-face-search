@@ -15,7 +15,6 @@
 package dk.kb.facesearch;
 
 import com.wolfram.jlink.KernelLink;
-import com.wolfram.jlink.MathLinkException;
 import com.wolfram.jlink.MathLinkFactory;
 import dk.kb.facesearch.config.ServiceConfig;
 import dk.kb.facesearch.model.v1.FaceDto;
@@ -31,12 +30,9 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -55,7 +51,8 @@ public class WolframFaces {
     public static final String KERNEL_KEY = "config.wolfram.mathKernel";
     public static final String SCRIPT_KEY = "config.wolfram.danerScript";
 
-    public static final String LIBDIR_KEY = "com.wolfram.jlink.libdir"; // Not YAML but system property
+    public static final String LIBDIR_PROP_KEY = "com.wolfram.jlink.libdir"; // Not YAML but system property
+    public static final String LIBDIR_ENV_KEY = "JLINK_LIB_DIR"; // Not YAML but system property
 
     private static WolframFaces instance;
     private KernelLink ml;
@@ -64,69 +61,7 @@ public class WolframFaces {
      * Initialized the Wolfram engine, loads the DANER-script and performs a warmup query.
      */
     public WolframFaces() {
-        final YAML conf = ServiceConfig.getConfig();
-
-        String featuresStr = conf.getString(FEATURES_KEY);
-        log.info("Initializing WolframFaces with features from '" + featuresStr + "'");
-
-        // Native JLink libraries
-        if (System.getProperty(LIBDIR_KEY) != null) {
-            log.info("Keeping already defined system property {}='{}'",
-                     LIBDIR_KEY, System.getProperty(LIBDIR_KEY));
-        } else {
-            if (conf.containsKey(JLINK_KEY)) {
-                System.setProperty(LIBDIR_KEY, conf.getString(JLINK_KEY));
-                log.info("Service config key {} converted to system property {}='{}'",
-                         JLINK_KEY, LIBDIR_KEY, System.getProperty(JLINK_KEY));
-            } else if (conf.containsKey(FOLDER_KEY)){
-                System.setProperty(LIBDIR_KEY, conf.getString(FOLDER_KEY) + "/SystemFiles/Links/JLink/");
-                log.info("Service config key {} converted to system property {}='{}'",
-                         FOLDER_KEY, LIBDIR_KEY, System.getProperty(JLINK_KEY));
-            } else {
-                log.warn("Neither system property {}, nor service config keys {} or {} defined. " +
-                         "JLink native library location will be derived from JLink.jar location",
-                         LIBDIR_KEY, JLINK_KEY, FOLDER_KEY);
-            }
-        }
-
-        // Feature file
-        List<Path> featureCandidates = Resolver.resolveGlob(featuresStr);
-        if (featureCandidates.isEmpty()) {
-            String message = "Unable to initialize WolframFaces as no file matches feature glob '" + featuresStr + "'";
-            log.error(message); // We use the anti-pattern log-throw as this halts the full application and we want all possible signals for that
-            throw new IllegalStateException(
-                    "Unable to initialize WolframFaces as no file matches feature glob '" + featuresStr + "'");
-        }
-
-        // Kernel
-        String kernel = conf.getString(KERNEL_KEY);
-        if (!Path.of(kernel).toFile().canRead()) {
-            String message = "No kernel at the stated path '" + kernel + "'";
-            log.error(message);
-            throw new IllegalStateException(new FileNotFoundException(message));
-        }
-
-        // Script
-        String script;
-        String scriptResource = conf.getString(SCRIPT_KEY);
-        try {
-            script = Resolver.resolveURL(scriptResource).getFile();
-        } catch (Exception e) {
-            String message = "Unable to resolve DANER script from '" + scriptResource + "'";
-            log.error(message, e);
-            throw new IllegalStateException(message, e);
-        }
-        Path featureFile = featureCandidates.get(featureCandidates.size()-1);
-        log.debug("Resolved concrete feature file '" + featureFile + "'");
-
-        try {
-            initEngine(kernel, script, featureFile);
-        } catch (Exception e) {
-            String message = "Error: initEngine failed";
-            log.error(message, e);
-            throw new IllegalStateException(message, e);
-        }
-        // TODO: Init the engine, load the script, warm it with a test search
+        initEngine(ServiceConfig.getConfig());
     }
 
     public static WolframFaces getInstance() {
@@ -136,7 +71,96 @@ public class WolframFaces {
         return instance;
     }
 
-    private void initEngine(String kernel, String script, Path featureFile) {
+    void initEngine(YAML conf) {
+        // Feature file
+        if (!conf.containsKey(FEATURES_KEY)) {
+            String message = "Cannot initialize Wolfram engine as config " + FEATURES_KEY + " is not defined";
+            log.error(message);
+            throw new IllegalStateException(message);
+        }
+        String featuresStr = conf.getString(FEATURES_KEY);
+        List<Path> featureCandidates = Resolver.resolveGlob(featuresStr);
+        if (featureCandidates.isEmpty()) {
+            String message = "Unable to initialize WolframFaces as no file matches feature glob '" + featuresStr + "'";
+            log.error(message); // We use the anti-pattern log-throw as this halts the full application and we want all possible signals for that
+            throw new IllegalStateException(
+                    "Unable to initialize WolframFaces as no file matches feature glob '" + featuresStr + "'");
+        }
+        Path featureFile = featureCandidates.get(featureCandidates.size()-1);
+        log.debug("Resolved concrete feature file '" + featureFile + "'");
+
+        // Native JLink libraries
+        if (System.getProperty(LIBDIR_PROP_KEY) != null) {
+            log.info("Keeping already defined system property {}='{}'",
+                     LIBDIR_PROP_KEY, System.getProperty(LIBDIR_PROP_KEY));
+        } else if (System.getenv(LIBDIR_ENV_KEY) != null) {
+            log.info("Keeping already defined environment {}='{}'",
+                     LIBDIR_ENV_KEY, System.getenv(LIBDIR_ENV_KEY));
+        } else {
+            if (conf.containsKey(JLINK_KEY)) {
+                System.setProperty(LIBDIR_PROP_KEY, conf.getString(JLINK_KEY));
+                log.info("Service config key {} converted to system property {}='{}'",
+                         JLINK_KEY, LIBDIR_PROP_KEY, System.getProperty(JLINK_KEY));
+            } else if (conf.containsKey(FOLDER_KEY)){
+                System.setProperty(LIBDIR_PROP_KEY, conf.getString(FOLDER_KEY) + "/SystemFiles/Links/JLink/");
+                log.info("Service config key {} converted to system property {}='{}'",
+                         FOLDER_KEY, LIBDIR_PROP_KEY, System.getProperty(JLINK_KEY));
+            } else {
+                log.warn("Neither system property {}, nor service config keys {} or {} defined. " +
+                         "JLink native library location will be derived from JLink.jar location",
+                         LIBDIR_PROP_KEY, JLINK_KEY, FOLDER_KEY);
+            }
+        }
+
+        // Kernel
+        String kernel;
+        if (conf.containsKey(KERNEL_KEY)) {
+            kernel = conf.getString(KERNEL_KEY);
+            if (!Path.of(kernel).toFile().canRead()) {
+                String message = "No kernel at " + KERNEL_KEY + "='" + kernel;
+                log.error(message);
+                throw new IllegalStateException(new FileNotFoundException(message));
+            }
+        } else if (conf.containsKey(FOLDER_KEY)) {
+            kernel = conf.getString(FOLDER_KEY) + "/Executables/MathKernel";
+            if (!Path.of(kernel).toFile().canRead()) {
+                String message = "No kernel at " + FOLDER_KEY + " + '/Executables/MathKernel' ='" + kernel;
+                log.error(message);
+                throw new IllegalStateException(new FileNotFoundException(message));
+            }
+        } else {
+            String message = "Cannot initialize Wolfram engine as neither config " + KERNEL_KEY + " or " + FOLDER_KEY +
+                             " are defined";
+            log.error(message);
+            throw new IllegalStateException(message);
+        }
+
+        // Script
+        String script;
+        if (!conf.containsKey(SCRIPT_KEY)) {
+            String message = "Cannot initialize Wolfram engine as config " + SCRIPT_KEY + " is not defined";
+            log.error(message);
+            throw new IllegalStateException(message);
+        }
+        String scriptResource = conf.getString(SCRIPT_KEY);
+        try {
+            script = Resolver.resolveURL(scriptResource).getFile();
+        } catch (Exception e) {
+            String message = "Unable to resolve DANER script from '" + scriptResource + "'";
+            log.error(message, e);
+            throw new IllegalStateException(message, e);
+        }
+
+        try {
+            initEngine(kernel, script, featureFile);
+        } catch (Exception e) {
+            String message = "Error: initEngine failed";
+            log.error(message, e);
+            throw new IllegalStateException(message, e);
+        }
+    }
+
+    void initEngine(String kernel, String script, Path featureFile) {
         log.info("initEngine(kernel='{}', script='{}', featureFile='{}') called", kernel, script, featureFile);
 
         String[] argv = new String[] {

@@ -17,14 +17,16 @@ config:
     folder: '/usr/local/Wolfram/WolframEngine/12.2'
 
     # The path to the kernel.
+    # If this is not defined, $folder/Executables/MathKernel will be used (this is the default).
     #
     # Do not change this value in daner-face-search-behaviour.yaml as it acts as default for everyone!
     # Instead, override it in daner-face-search-environment.yaml (create the config file is it does not exist).
-    mathKernel: '/usr/local/Wolfram/WolframEngine/12.2/Executables/MathKernel'
+    #mathKernel: '/usr/local/Wolfram/WolframEngine/12.2/Executables/MathKernel'
 
     # The JLink folder containing the native libraries for JLink.
     # If this is not defined, $folder/SystemFiles/Links/JLink/ will be used (this is the default).
-    # If the property "com.wolfram.jlink.libdir" is specified, it will take precedence.
+    # If the system property "com.wolfram.jlink.libdir" or environment "JLINK_LIB_DIR" is specified,
+    # it will take precedence.
     #
     # Do not change this value in daner-face-search-behaviour.yaml as it acts as default for everyone!
     # Instead, override it in daner-face-search-environment.yaml (create the config file is it does not exist).
