@@ -55,9 +55,22 @@ Test the webservice with
 mvn jetty:run
 ```
 
-The default port is 8234 and the default Hello World service can be accessed at
-<http://localhost:8234/daner-face-search/v1/hello>
+The default port is 8234 and the ping service can be accessed at
+<http://localhost:8234/daner-face-search/v1/ping>
 
 The Swagger UI is available at <http://localhost:8234/daner-face-search/api/>. 
 
+### Deploy
+
 See the file [DEVELOPER.md](DEVELOPER.md) for developer specific details and how to deploy to tomcat.
+
+Special note: The support files for the Wolfram driven classification also needs to
+be downloaded once on the deploy server. This is done automatically on first start,
+but can take quite a while.
+
+Running the classification download script performs this step and might be preferable:
+
+```
+wolframscript -file init_daner_script.wls
+```
+where the `init_daner_script.wls` is taken from the repository.   
