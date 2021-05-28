@@ -154,7 +154,7 @@ public class FaceSearchImpl implements DanerFaceSearchApi {
     
         
         try{ 
-            String response = "uhx4aJHLM";
+            String response = "pong";
         return response;
         } catch (Exception e){
             throw handleException(e);
