@@ -58,6 +58,9 @@ mvn jetty:run
 The default port is 8234 and the ping service can be accessed at
 <http://localhost:8234/daner-face-search/v1/ping>
 
+To try a classification with the sample image `thispersondoesnotexist.com.jpg`, call
+<http://localhost:8234/daner-face-search/v1/similarFaces?imageURL=http%3A%2F%2Flocalhost%3A9839%2Fdaner-face-search%2Fthispersondoesnotexist.com.jpg&imageType=PNG&maxMatches=10>
+
 The Swagger UI is available at <http://localhost:8234/daner-face-search/api/>. 
 
 ### Deploy
