@@ -97,14 +97,14 @@ public class WolframFaces {
             log.info("Keeping already defined environment {}='{}'",
                      LIBDIR_ENV_KEY, System.getenv(LIBDIR_ENV_KEY));
         } else {
-            if (conf.containsKey(JLINK_KEY)) {
+            if (conf.containsKey(JLINK_KEY) && !"".equals(conf.getString(JLINK_KEY))) {
                 System.setProperty(LIBDIR_PROP_KEY, conf.getString(JLINK_KEY));
                 log.info("Service config key {} converted to system property {}='{}'",
-                         JLINK_KEY, LIBDIR_PROP_KEY, System.getProperty(JLINK_KEY));
-            } else if (conf.containsKey(FOLDER_KEY)){
+                         JLINK_KEY, LIBDIR_PROP_KEY, System.getProperty(LIBDIR_PROP_KEY));
+            } else if (conf.containsKey(FOLDER_KEY) && !"".equals(conf.getString(FOLDER_KEY))){
                 System.setProperty(LIBDIR_PROP_KEY, conf.getString(FOLDER_KEY) + "/SystemFiles/Links/JLink/");
                 log.info("Service config key {} converted to system property {}='{}'",
-                         FOLDER_KEY, LIBDIR_PROP_KEY, System.getProperty(JLINK_KEY));
+                         FOLDER_KEY, LIBDIR_PROP_KEY, System.getProperty(LIBDIR_PROP_KEY));
             } else {
                 log.warn("Neither system property {}, nor service config keys {} or {} defined. " +
                          "JLink native library location will be derived from JLink.jar location",
